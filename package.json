@@ -1,0 +1,27 @@
+{
+  "name": "swift-reviews",
+  "version": "1.0.0",
+  "description": "The reviews section for SDC",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm test",
+    "server-dev": "npx nodemon server/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HRrfp51-Team-Swift/Swift-Reviews.git"
+  },
+  "author": "Johnathan Etchart",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/HRrfp51-Team-Swift/Swift-Reviews/issues"
+  },
+  "homepage": "https://github.com/HRrfp51-Team-Swift/Swift-Reviews#readme",
+  "dependencies": {
+    "mongodb": "^3.6.5"
+  },
+  "devDependencies": {
+    "express": "^4.17.1",
+    "mongoose": "^5.12.0"
+  }
+}
