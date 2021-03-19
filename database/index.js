@@ -23,7 +23,20 @@ let reviewSchema = mongoose.Schema({
   photos: [{ url: String }],
 });
 
+let characteristicSchema = mongoose.Schema({
+  id: Number,
+  product_id: Number,
+  name: String,
+  values: [{
+    id: Number,
+    characteristic_id: Number,
+    review_id: Number,
+    value: Number,
+  }],
+});
+
 let Reviews = mongoose.model("reviewsAndPhotos", reviewSchema, "reviewsAndPhotos");
+let Characteristics = mongoose.model("characteristicsAndValues", characteristicSchema, "characteristicsAndValues");
 
 let find = (product_id, callback) => {
   console.log("db.find is being called");
@@ -36,7 +49,14 @@ let find = (product_id, callback) => {
   // });
 };
 
+let findCharacteristics = (product_id, callback) => {
+  console.log("db.findCharacteristics is being called");
+  Characteristics.find({ product_id: product_id }).exec((err, items) => {
+    callback(err, items);
+  });
+};
+
 module.exports = {
   find: find,
-  // addPhotos: addPhotos,
+  findCharacteristics: findCharacteristics,
 };

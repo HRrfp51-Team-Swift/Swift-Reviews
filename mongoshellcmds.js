@@ -7,6 +7,8 @@ db.reviews.createIndex( { "id": 1 } )
 db.collection.getIndexes()
 //get rid of indexes
 db.collection.dropIndex()
+//rename collections
+db.collection.renameCollection('newCollectionName')
 
 //rename all of the field names in a collection
 db.reviews.updateMany( {}, { $rename: { 'id': 'review_id' } })
@@ -36,17 +38,18 @@ Pipeline plan for characteristics
 
 
   3.
+
+  {
+    $project: {
+      "_id": 0,
+      "review_id": 0
+    }
+  }
   //pipeline to filter fields
   pipeline = [
     {
-      $lookup: { from: "review_photos", localField: "id", foreignField: "review_id", as: "photosMaybe" }
-
+      $lookup: { from: "characteristic_reviews", localField: "id", foreignField: "characteristic_id", as: "values" },
     },
-    {
-      $project: {
-        "_id": 0,
-        "review_id": 0
-      }
-    }
-    { $out : "newMatchingPhotos" }
+    { $out : "characteristicsAndValues2" }
   ]
+  db.characteristics.aggregate(pipeline, { allowDiskUse: true })
