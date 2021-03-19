@@ -6,21 +6,28 @@ const db = require("./database");
 app.use(express.json());
 
 app.get("/reviews", (req, res) => {
-  // console.log(req.body)
+  let product_id = req.query.product_id;
+  console.log(product_id);
   console.log("someone is connecting to GET reviews for product_id");
-  db.find((err, items) => {
+  db.find(product_id, (err, items) => {
     if (err) {
       console.error("errored out of db.find");
     } else {
+      let response = {
+        product: product_id,
+        page: 0,
+        count: 5,
+        results: items,
+      };
       console.log("success in db.find");
-      console.log(items);
-      res.status(200).send(items);
+      // console.log(items);
+      res.status(200).send(response);
     }
   });
 });
 
 let port = process.env.PORT;
-if (port == null || port == "") {
+if (port == null || port == '') {
   port = 1128;
 }
 app.listen(port, () => {

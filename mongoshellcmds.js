@@ -35,3 +35,18 @@ Pipeline plan for characteristics
       db.reviews.updateMany( {}, {} )
 
 
+  3.
+  //pipeline to filter fields
+  pipeline = [
+    {
+      $lookup: { from: "review_photos", localField: "id", foreignField: "review_id", as: "photosMaybe" }
+
+    },
+    {
+      $project: {
+        "_id": 0,
+        "review_id": 0
+      }
+    }
+    { $out : "newMatchingPhotos" }
+  ]

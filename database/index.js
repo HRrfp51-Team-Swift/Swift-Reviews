@@ -25,9 +25,10 @@ let reviewSchema = mongoose.Schema({
 
 let Reviews = mongoose.model("reviewsAndPhotos", reviewSchema, "reviewsAndPhotos");
 
-let find = (callback) => {
+let find = (product_id, callback) => {
   console.log("db.find is being called");
-  Reviews.find({ review_id: 10 }).exec((err, items) => {
+  let queryArray = [product_id];
+  Reviews.find({ product_id: product_id }).exec((err, items) => {
     callback(err, items);
   });
   // Reviews.find({ review_id: 100000 }).exec((err, items) => {
