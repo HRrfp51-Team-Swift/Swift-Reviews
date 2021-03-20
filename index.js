@@ -8,7 +8,7 @@ app.use(express.json());
 app.get("/reviews", (req, res) => {
   let product_id = req.query.product_id;
   console.log("someone is connecting to GET reviews for product_id", product_id);
-  db.find(product_id, (err, items) => {
+  db.findReviews(product_id, (err, items) => {
     if (err) {
       console.error("errored out of db.find");
     } else {
@@ -28,12 +28,59 @@ app.get("/reviews", (req, res) => {
 app.get("/metadata", (req, res) => {
   let product_id = req.query.product_id;
   console.log("someone is connecting to GET metadata for ", product_id);
-  db.findCharacteristics(product_id, (err, items) => {
-    if(err) {
-      console.error("errored out of the db.findCharacteristics");
+
+  //items sorting into response logic!
+  let results = {
+    product_id: product_id,
+    ratings: {
+      1: 0,
+      2: 0,
+      3: 0,
+      4: 0,
+      5: 0,
+    },
+    recommended: {
+      false: 0,
+      true: 0,
+    },
+    characteristics: {},
+  };
+
+  //get all reviews by id
+  db.findReviews(product_id, (err1, reviews) => {
+    if (err1) {
+      console.error(err);
     } else {
-      console.log("success in db.findCharacteristics!");
-      res.status(200).send(items);
+      //loop reviews
+      // - increment totals of results.ratings[reviews[i].rating]
+      // - also incremented results.recommended[reviews[i].recommend] (true or false)
+
+      db.findCharacteristics(product_id, (err2, items) => {
+        if (err2) {
+          console.error("errored out of the db.findCharacteristics");
+        } else {
+          //loop through items
+          //check items[i].name
+          //if results[i].name === undefined
+            //set the name in response
+              //results.characteristics[results[i].name].id = results[i].name
+
+            //let total = 0
+            //let valuesCount = items[i].values.length
+            //loop through items[i].values
+            //increment total by items[i].values[j].value
+
+            //after loop, get average and set characteristics[results[i].name].value = avg
+
+
+
+
+
+
+          console.log("success in db.findCharacteristics!");
+          res.status(200).send(items);
+        }
+      });
     }
   });
 });

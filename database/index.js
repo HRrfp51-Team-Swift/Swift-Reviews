@@ -38,7 +38,7 @@ let characteristicSchema = mongoose.Schema({
 let Reviews = mongoose.model("reviewsAndPhotos", reviewSchema, "reviewsAndPhotos");
 let Characteristics = mongoose.model("characteristicsAndValues", characteristicSchema, "characteristicsAndValues");
 
-let find = (product_id, callback) => {
+let findReviews = (product_id, callback) => {
   console.log("db.find is being called");
   let queryArray = [product_id];
   Reviews.find({ product_id: product_id }).exec((err, items) => {
@@ -57,6 +57,6 @@ let findCharacteristics = (product_id, callback) => {
 };
 
 module.exports = {
-  find: find,
-  findCharacteristics: findCharacteristics,
+  findReviews,
+  findCharacteristics,
 };
