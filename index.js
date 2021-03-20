@@ -61,32 +61,36 @@ app.get("/metadata", (req, res) => {
         results.recommended[`${recommended}`]++;
       }
 
-      // db.findCharacteristics(product_id, (err2, items) => {
-      //   if (err2) {
-      //     console.error("errored out of the db.findCharacteristics");
-      //   } else {
-      //     //loop through items
-      //     //check items[i].name
-      //     //if results[i].name === undefined
-      //       //set the name in response
-      //         //results.characteristics[results[i].name].id = results[i].name
-
-      //       //let total = 0
-      //       //let valuesCount = items[i].values.length
-      //       //loop through items[i].values
-      //       //increment total by items[i].values[j].value
-
-      //       //after loop, get average and set characteristics[results[i].name].value = avg
-
-
-
-
-
-
-      //     console.log("success in db.findCharacteristics!");
+      db.findCharacteristics(product_id, (err2, items) => {
+        if (err2) {
+          console.error("errored out of the db.findCharacteristics");
+        } else {
+          //loop through items
+          for (let i = 0; i < items.length; i++) {
+            //check items[i].name
+            let charName = items[i].name;
+            //if results[i].name === undefined
+            if (results.characteristics[charName] === undefined) {
+              //set the name in results
+              results.characteristics[charName] = {};
+              //results.characteristics[results[i].name].id = results[i].name
+            }
+            let values = items[i].values;
+            let valuesTotal = 0;
+            //let valuesCount = items[i].values.length
+            let valuesCount = values.length;
+            //loop through items[i].values
+            for (let j = 0; j < values.length; j++) {
+              //increment total by items[i].values[j].value
+              valuesTotal += values[j].value;
+            }
+            //after loop, get average and set characteristics[results[i].name].value = avg
+            results.characteristics[charName] = valuesTotal / valuesCount;
+          }
+          console.log("success in db.findCharacteristics!");
           res.status(200).send(results);
-      //   }
-      // });
+        }
+      });
     }
   });
 });
