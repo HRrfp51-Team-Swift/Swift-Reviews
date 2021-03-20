@@ -38,15 +38,43 @@ let characteristicSchema = mongoose.Schema({
 let Reviews = mongoose.model("reviewsAndPhotos", reviewSchema, "reviewsAndPhotos");
 let Characteristics = mongoose.model("characteristicsAndValues", characteristicSchema, "characteristicsAndValues");
 
-let findReviews = (product_id, callback) => {
+let findReviews = (params, callback) => {
   console.log("db.find is being called");
-  let queryArray = [product_id];
-  Reviews.find({ product_id: product_id }).exec((err, items) => {
-    callback(err, items);
-  });
-  // Reviews.find({ review_id: 100000 }).exec((err, items) => {
-  //   callback(err, items);
-  // });
+  console.log(params)
+  const {product_id, sort} = params;
+  if(sort === 'relevant' || sort === "'relevant") {
+    console.log('in relevant call');
+    let pipeline = [
+      {
+        $match: {
+          'product_id': Number(product_id)
+        }
+      }, {
+        $sort: { 'date': -1, 'helpfulness': -1 }
+      }
+    ];
+    console.log(pipeline)
+    Reviews.aggregate(pipeline, (err, items) => {
+      callback(err, items);
+    });
+  } else if (sort === 'helpfulness') {
+    console.log('in helpfulness call');
+    //just helpfulness sort
+    Reviews.find({ product_id: product_id }).sort({ helpfulness: -1 }).exec((err, items) => {
+      callback(err, items);
+    });
+  } else if (sort === 'date') {
+    console.log('in date call')
+    //just date sort
+    Reviews.find({ product_id: product_id }).sort({ date: -1 }).exec((err, items) => {
+      callback(err, items);
+    });
+  } else {
+    console.log('in regular ol call')
+    Reviews.find({ product_id: product_id }).exec((err, items) => {
+      callback(err, items);
+    });
+  }
 };
 
 let findCharacteristics = (product_id, callback) => {

@@ -1,21 +1,24 @@
+/* eslint-disable camelcase */
 const express = require("express");
 
 let app = express();
-const db = require("./database");
+const db = require('./database');
 
 app.use(express.json());
 
-app.get("/reviews", (req, res) => {
-  let product_id = req.query.product_id;
+app.get('/reviews', (req, res) => {
+  // let product_id = req.query.product_id;
+  const params = req.query;
+  const { product_id } = params;
   console.log("someone is connecting to GET reviews for product_id", product_id);
-  db.findReviews(product_id, (err, items) => {
+  db.findReviews(params, (err, items) => {
     if (err) {
       console.error("errored out of db.find");
     } else {
       let response = {
         product: product_id,
         page: 0,
-        count: 5,
+        count: items.length,
         results: items,
       };
       console.log("success in db.find");
