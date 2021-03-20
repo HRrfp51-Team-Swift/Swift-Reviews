@@ -7,7 +7,7 @@ db.once("open", () => {
   console.log("connected to db");
 });
 
-let reviewSchema = mongoose.Schema({
+const reviewSchema = mongoose.Schema({
   review_id: Number,
   product_id: Number,
   rating: Number,
@@ -23,7 +23,7 @@ let reviewSchema = mongoose.Schema({
   photos: [{ url: String }],
 });
 
-let characteristicSchema = mongoose.Schema({
+const characteristicSchema = mongoose.Schema({
   id: Number,
   product_id: Number,
   name: String,
@@ -39,38 +39,56 @@ let Reviews = mongoose.model("reviewsAndPhotos", reviewSchema, "reviewsAndPhotos
 let Characteristics = mongoose.model("characteristicsAndValues", characteristicSchema, "characteristicsAndValues");
 
 let findReviews = (params, callback) => {
-  console.log("db.find is being called");
-  console.log(params)
-  const {product_id, sort} = params;
-  if(sort === 'relevant' || sort === "'relevant") {
-    console.log('in relevant call');
+  const {product_id, sort, count} = params;
+  if(sort === 'relevant' || sort === '"relevant"' || sort === undefined) {
     let pipeline = [
       {
         $match: {
           'product_id': Number(product_id)
         }
       }, {
-        $sort: { 'date': -1, 'helpfulness': -1 }
+        $sort: { 'date': -1, 'helpfulness': -1 },
+
+      }, {
+        $limit: Number(count) || 5
       }
     ];
-    console.log(pipeline)
     Reviews.aggregate(pipeline, (err, items) => {
       callback(err, items);
     });
   } else if (sort === 'helpfulness') {
-    console.log('in helpfulness call');
-    //just helpfulness sort
-    Reviews.find({ product_id: product_id }).sort({ helpfulness: -1 }).exec((err, items) => {
+    let pipeline = [
+      {
+        $match: {
+          'product_id': Number(product_id)
+        }
+      }, {
+        $sort: { 'helpfulness': -1 },
+
+      }, {
+        $limit: Number(count) || 5
+      }
+    ];
+    Reviews.aggregate(pipeline, (err, items) => {
       callback(err, items);
     });
   } else if (sort === 'date') {
-    console.log('in date call')
-    //just date sort
-    Reviews.find({ product_id: product_id }).sort({ date: -1 }).exec((err, items) => {
+    let pipeline = [
+      {
+        $match: {
+          'product_id': Number(product_id)
+        }
+      }, {
+        $sort: { 'date': -1 },
+
+      }, {
+        $limit: Number(count) || 5
+      }
+    ];
+    Reviews.aggregate(pipeline, (err, items) => {
       callback(err, items);
     });
   } else {
-    console.log('in regular ol call')
     Reviews.find({ product_id: product_id }).exec((err, items) => {
       callback(err, items);
     });
@@ -78,7 +96,6 @@ let findReviews = (params, callback) => {
 };
 
 let findCharacteristics = (product_id, callback) => {
-  console.log("db.findCharacteristics is being called");
   Characteristics.find({ product_id: product_id }).exec((err, items) => {
     callback(err, items);
   });

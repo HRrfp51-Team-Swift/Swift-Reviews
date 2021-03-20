@@ -6,10 +6,13 @@ db.reviews.createIndex( { "id": 1 } )
 //look at indexes
 db.collection.getIndexes()
 //get rid of indexes
-db.collection.dropIndex()
+db.collection.dropIndex( "indexName" ) || db.collection.dropIndex( { "field" : -1 } )
 //rename collections
 db.collection.renameCollection('newCollectionName')
-
+//add another document to the collection
+db.collection.insert({'object and its details'})
+//remove a document from the collection - via query
+db.collection.remove({'field': 'value'})
 //rename all of the field names in a collection
 db.reviews.updateMany( {}, { $rename: { 'id': 'review_id' } })
 //set up a pipeline for an aggregate call

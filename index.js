@@ -1,5 +1,6 @@
+/* eslint-disable no-plusplus */
 /* eslint-disable camelcase */
-const express = require("express");
+const express = require('express');
 
 let app = express();
 const db = require('./database');
@@ -10,10 +11,11 @@ app.get('/reviews', (req, res) => {
   // let product_id = req.query.product_id;
   const params = req.query;
   const { product_id } = params;
-  console.log("someone is connecting to GET reviews for product_id", product_id);
+  console.log('someone is connecting to GET reviews for product_id', product_id);
   db.findReviews(params, (err, items) => {
     if (err) {
-      console.error("errored out of db.find");
+      console.error('errored out of db.find');
+      //
     } else {
       let response = {
         product: product_id,
@@ -21,8 +23,7 @@ app.get('/reviews', (req, res) => {
         count: items.length,
         results: items,
       };
-      console.log("success in db.find");
-      // console.log(items);
+      console.log('success in db.find');
       res.status(200).send(response);
     }
   });
@@ -30,11 +31,13 @@ app.get('/reviews', (req, res) => {
 
 app.get("/metadata", (req, res) => {
   let product_id = req.query.product_id;
-  console.log("someone is connecting to GET metadata for ", product_id);
-
+  console.log('someone is connecting to GET metadata for ', product_id);
+  const params = req.query;
+  // let product_id =
+  params.count = 0;
   //items sorting into response logic!
   let results = {
-    product_id: product_id,
+    product_id: params.product_id,
     ratings: {
       1: 0,
       2: 0,
@@ -50,7 +53,7 @@ app.get("/metadata", (req, res) => {
   };
 
   //get all reviews by id
-  db.findReviews(product_id, (err1, reviews) => {
+  db.findReviews(params, (err1, reviews) => {
     if (err1) {
       console.error(err);
     } else {
@@ -61,12 +64,18 @@ app.get("/metadata", (req, res) => {
         results.ratings[rating]++;
         // - also incremented results.recommended[reviews[i].recommend] (true or false)
         let recommended = reviews[i].recommend;
+        //handle weird cases where it has 0 or 1 instead of true or false
+        if (recommended === 0) {
+          recommended = false;
+        } else if (recommended === 1) {
+          recommended = true;
+        }
         results.recommended[`${recommended}`]++;
       }
 
       db.findCharacteristics(product_id, (err2, items) => {
         if (err2) {
-          console.error("errored out of the db.findCharacteristics");
+          console.error('errored out of the db.findCharacteristics');
         } else {
           //loop through items
           for (let i = 0; i < items.length; i++) {
@@ -81,7 +90,7 @@ app.get("/metadata", (req, res) => {
             let values = items[i].values;
             let valuesTotal = 0;
             //let valuesCount = items[i].values.length
-            let valuesCount = values.length;
+            const valuesCount = values.length;
             //loop through items[i].values
             for (let j = 0; j < values.length; j++) {
               //increment total by items[i].values[j].value
@@ -90,7 +99,7 @@ app.get("/metadata", (req, res) => {
             //after loop, get average and set characteristics[results[i].name].value = avg
             results.characteristics[charName] = valuesTotal / valuesCount;
           }
-          console.log("success in db.findCharacteristics!");
+          console.log('success in db.findCharacteristics!');
           res.status(200).send(results);
         }
       });
