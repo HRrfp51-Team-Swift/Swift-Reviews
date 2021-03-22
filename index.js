@@ -34,7 +34,7 @@ app.get("/metadata", (req, res) => {
   console.log('someone is connecting to GET metadata for ', product_id);
   const params = req.query;
   // let product_id =
-  params.count = 0;
+  params.count = '1000000000';
   //items sorting into response logic!
   let results = {
     product_id: params.product_id,
@@ -51,7 +51,7 @@ app.get("/metadata", (req, res) => {
     },
     characteristics: {},
   };
-
+  console.log(params)
   //get all reviews by id
   db.findReviews(params, (err1, reviews) => {
     if (err1) {

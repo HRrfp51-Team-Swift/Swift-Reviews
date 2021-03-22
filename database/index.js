@@ -40,6 +40,7 @@ let Characteristics = mongoose.model("characteristicsAndValues", characteristicS
 
 let findReviews = (params, callback) => {
   const {product_id, sort, count} = params;
+  console.log(count);
   if(sort === 'relevant' || sort === '"relevant"' || sort === undefined) {
     let pipeline = [
       {
