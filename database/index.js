@@ -103,35 +103,69 @@ const findCharacteristics = (product_id, callback) => {
 };
 
 const updateHelpful = (review_id, callback) => {
-  // Reviews.find({ review_id: review_id }).exec((err, result) => {
-  //   console.log(review[0])
-  //   callback(err, result)
-  // })
-
   Reviews.update({ review_id: review_id }, { $inc: { helpfulness: 1 } }).exec((err, result) => {
     callback(err, result);
   });
 };
 
 const updateReported = (review_id, callback) => {
-  // Reviews.find({ review_id: review_id }).exec((err, result) => {
-  //   console.log(review[0])
-  //   callback(err, result)
-  // })
-
-  Reviews.update({ review_id: review_id }, { $set: { reported: true } }).exec((err, result) => {
+  Reviews.updateOne({ review_id: review_id }, { $set: { reported: true } }).exec((err, result) => {
     callback(err, result);
   });
 };
 
-const addReview = () => {
+const getLastReview = (callback) => {
+  Reviews.find().sort( { review_id: -1 }).limit(1).exec((err, lastReview) => {
+    callback(err, lastReview);
+  });
+};
 
-}
+const addReview = (newProduct, callback) => {
+  const { product_id, rating, summary, body, recommend, reviewer_name, reviewer_email, response, helpfulness, photos, nextReview_id} = newProduct;
+  Reviews.create({
+    review_id: nextReview_id,
+    product_id: product_id,
+    rating: rating,
+    date: new Date(),
+    summary: summary,
+    body: body,
+    reported: false,
+    recommend: recommend,
+    reviewer_name: reviewer_name,
+    reviewer_email: reviewer_email,
+    response: null,
+    helpfulness: 0,
+    photos: photos
+  }, (err, result) => {
+    callback(err, result);
+  });
+};
+
+const addCharacteristics = (updatedItems, callback) => {
+  //just update the values of each
+
+  updatedItems.map(async (item) => {
+    await Characteristics.updateOne(
+      { id: item.id },
+      {
+        $set: {
+          values: item.values,
+        },
+      },
+    )
+      .catch((err) => {
+        callback(err);
+      });
+  });
+  callback(null, 'you rock!');
+};
 
 module.exports = {
   findReviews,
   findCharacteristics,
   updateHelpful,
   updateReported,
+  getLastReview,
   addReview,
+  addCharacteristics,
 };

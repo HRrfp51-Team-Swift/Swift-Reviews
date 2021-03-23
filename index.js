@@ -84,7 +84,7 @@ app.get("/reviews/meta", (req, res) => {
               //set the name in results
               results.characteristics[charName] = {};
               // console.log(items[i].id)
-              results.characteristics[charName].id = items[i].id;
+
               // results.characteristics[charName].id = items[i].id;
               // results.characteristics[results[i].name].id = results[i].name
             }
@@ -98,6 +98,7 @@ app.get("/reviews/meta", (req, res) => {
               valuesTotal += values[j].value;
             }
             //after loop, get average and set characteristics[results[i].name].value = avg
+            results.characteristics[charName].id = items[i].id;
             results.characteristics[charName].value = valuesTotal / valuesCount;
           }
           console.log('success in db.findCharacteristics!');
@@ -123,7 +124,7 @@ app.put('/reviews/:review_id/helpful', (req, res) => {
 
 app.put('/reviews/:review_id/report', (req, res) => {
   console.log('someone is connecting to PUT reported for review', req.params.review_id);
-  console.log(req.params)
+  console.log(req.params);
   db.updateReported(req.params.review_id, (err, result) => {
     if (err) {
       console.error(err);
@@ -136,7 +137,57 @@ app.put('/reviews/:review_id/report', (req, res) => {
 
 app.post('/reviews', (req, res) => {
   console.log('in post new review request')
-  console.log(req.body)
+  const params = req.body;
+  //get new review_id at the start
+  db.getLastReview((err, lastReview) => {
+    params.nextReview_id = lastReview[0].review_id + 1;
+    //get characteristicsAndValues entry for product_id and names
+    db.findCharacteristics(params.product_id, (err, items) => {
+      //check that number of chars is same on both
+      //if not exit, error out
+      if (items.length !== Object.keys(params.characteristics).length) {
+        //error out
+        res.status(400).end();
+      } else {
+        //loop through items[i].id
+        for (let i = 0; i < items.length; i++) {
+          //if it matches an incoming params.characteristics[items[i].id]
+          if (params.characteristics[items[i].id]) {
+            //push onto that array
+            let newChar = {
+              characteristic_id: items[i].id,
+              review_id: params.nextReview_id,
+              value: params.characteristics[items[i].id],
+            };
+            items[i].values.push(newChar);
+          }
+        }
+      }
+      //items are ready!!!!!!!!!!
+      console.log(items)
+      db.addCharacteristics(items, (err2, results) => {
+        if (err) {
+          console.error(err2);
+        } else {
+          console.log('successfully added characteristics in a promise all maybe')
+          db.addReview(params, (err3, result) => {
+            if (err) {
+              console.error(err3);
+              res.status(406).send(err3);
+            } else {
+              //review added
+              console.log('in success route for add reviews')
+              console.log(result);
+              res.status(201).send(result);
+            }
+          });
+        }
+      });
+      //update each entry values field with new values
+
+    });
+
+  })
 });
 
 let port = process.env.PORT;
