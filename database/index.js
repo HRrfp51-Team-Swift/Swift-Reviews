@@ -1,4 +1,4 @@
-let mongoose = require("mongoose");
+const mongoose = require("mongoose");
 mongoose.connect("mongodb://localhost/Reviews");
 
 const db = mongoose.connection;
@@ -35,14 +35,14 @@ const characteristicSchema = mongoose.Schema({
   }],
 });
 
-let Reviews = mongoose.model("reviewsAndPhotos", reviewSchema, "reviewsAndPhotos");
-let Characteristics = mongoose.model("characteristicsAndValues", characteristicSchema, "characteristicsAndValues");
+const Reviews = mongoose.model('reviewsAndPhotos', reviewSchema, 'reviewsAndPhotos');
+const Characteristics = mongoose.model('characteristicsAndValues', characteristicSchema, 'characteristicsAndValues');
 
-let findReviews = (params, callback) => {
-  const {product_id, sort, count} = params;
-  console.log(count);
-  if(sort === 'relevant' || sort === '"relevant"' || sort === undefined) {
-    let pipeline = [
+const findReviews = (params, callback) => {
+  const { product_id, sort, count } = params;
+  // if (sort === 'relevant') {
+  if (sort === 'relevant' || sort === '"relevant"' || sort === undefined) {
+    const pipeline = [
       {
         $match: {
           'product_id': Number(product_id)
@@ -58,7 +58,7 @@ let findReviews = (params, callback) => {
       callback(err, items);
     });
   } else if (sort === 'helpfulness') {
-    let pipeline = [
+    const pipeline = [
       {
         $match: {
           'product_id': Number(product_id)
@@ -74,7 +74,7 @@ let findReviews = (params, callback) => {
       callback(err, items);
     });
   } else if (sort === 'date') {
-    let pipeline = [
+    const pipeline = [
       {
         $match: {
           'product_id': Number(product_id)
@@ -90,19 +90,48 @@ let findReviews = (params, callback) => {
       callback(err, items);
     });
   } else {
-    Reviews.find({ product_id: product_id }).exec((err, items) => {
+    Reviews.find({ product_id: product_id }).lean().exec((err, items) => {
       callback(err, items);
     });
   }
 };
 
-let findCharacteristics = (product_id, callback) => {
+const findCharacteristics = (product_id, callback) => {
   Characteristics.find({ product_id: product_id }).exec((err, items) => {
     callback(err, items);
   });
 };
 
+const updateHelpful = (review_id, callback) => {
+  // Reviews.find({ review_id: review_id }).exec((err, result) => {
+  //   console.log(review[0])
+  //   callback(err, result)
+  // })
+
+  Reviews.update({ review_id: review_id }, { $inc: { helpfulness: 1 } }).exec((err, result) => {
+    callback(err, result);
+  });
+};
+
+const updateReported = (review_id, callback) => {
+  // Reviews.find({ review_id: review_id }).exec((err, result) => {
+  //   console.log(review[0])
+  //   callback(err, result)
+  // })
+
+  Reviews.update({ review_id: review_id }, { $set: { reported: true } }).exec((err, result) => {
+    callback(err, result);
+  });
+};
+
+const addReview = () => {
+
+}
+
 module.exports = {
   findReviews,
   findCharacteristics,
+  updateHelpful,
+  updateReported,
+  addReview,
 };

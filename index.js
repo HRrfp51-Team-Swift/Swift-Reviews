@@ -29,11 +29,10 @@ app.get('/reviews', (req, res) => {
   });
 });
 
-app.get("/metadata", (req, res) => {
+app.get("/reviews/meta", (req, res) => {
   let product_id = req.query.product_id;
   console.log('someone is connecting to GET metadata for ', product_id);
   const params = req.query;
-  // let product_id =
   params.count = '1000000000';
   //items sorting into response logic!
   let results = {
@@ -51,7 +50,6 @@ app.get("/metadata", (req, res) => {
     },
     characteristics: {},
   };
-  console.log(params)
   //get all reviews by id
   db.findReviews(params, (err1, reviews) => {
     if (err1) {
@@ -85,7 +83,10 @@ app.get("/metadata", (req, res) => {
             if (results.characteristics[charName] === undefined) {
               //set the name in results
               results.characteristics[charName] = {};
-              //results.characteristics[results[i].name].id = results[i].name
+              // console.log(items[i].id)
+              results.characteristics[charName].id = items[i].id;
+              // results.characteristics[charName].id = items[i].id;
+              // results.characteristics[results[i].name].id = results[i].name
             }
             let values = items[i].values;
             let valuesTotal = 0;
@@ -97,7 +98,7 @@ app.get("/metadata", (req, res) => {
               valuesTotal += values[j].value;
             }
             //after loop, get average and set characteristics[results[i].name].value = avg
-            results.characteristics[charName] = valuesTotal / valuesCount;
+            results.characteristics[charName].value = valuesTotal / valuesCount;
           }
           console.log('success in db.findCharacteristics!');
           res.status(200).send(results);
@@ -105,6 +106,37 @@ app.get("/metadata", (req, res) => {
       });
     }
   });
+});
+
+app.put('/reviews/:review_id/helpful', (req, res) => {
+  console.log('someone is connecting to PUT helpfulness for review', req.params.review_id);
+  console.log(req.params)
+  db.updateHelpful(req.params.review_id, (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(304).send(err);
+    } else {
+      res.status(202).send(result);
+    }
+  });
+});
+
+app.put('/reviews/:review_id/report', (req, res) => {
+  console.log('someone is connecting to PUT reported for review', req.params.review_id);
+  console.log(req.params)
+  db.updateReported(req.params.review_id, (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(304).send(err);
+    } else {
+      res.status(202).send(result);
+    }
+  });
+});
+
+app.post('/reviews', (req, res) => {
+  console.log('in post new review request')
+  console.log(req.body)
 });
 
 let port = process.env.PORT;
