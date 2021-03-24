@@ -1,5 +1,6 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable camelcase */
+require('newrelic');
 const express = require('express');
 
 let app = express();
@@ -30,12 +31,11 @@ app.get('/reviews', (req, res) => {
 });
 
 app.get("/reviews/meta", (req, res) => {
-  let product_id = req.query.product_id;
+  const { product_id } = req.query;
   console.log('someone is connecting to GET metadata for ', product_id);
   const params = req.query;
-  params.count = '1000000000';
-  //items sorting into response logic!
-  let results = {
+  params.count = '99999';
+  const results = {
     product_id: params.product_id,
     ratings: {
       1: 0,
@@ -83,10 +83,6 @@ app.get("/reviews/meta", (req, res) => {
             if (results.characteristics[charName] === undefined) {
               //set the name in results
               results.characteristics[charName] = {};
-              // console.log(items[i].id)
-
-              // results.characteristics[charName].id = items[i].id;
-              // results.characteristics[results[i].name].id = results[i].name
             }
             let values = items[i].values;
             let valuesTotal = 0;
@@ -111,7 +107,6 @@ app.get("/reviews/meta", (req, res) => {
 
 app.put('/reviews/:review_id/helpful', (req, res) => {
   console.log('someone is connecting to PUT helpfulness for review', req.params.review_id);
-  console.log(req.params)
   db.updateHelpful(req.params.review_id, (err, result) => {
     if (err) {
       console.error(err);
@@ -124,7 +119,6 @@ app.put('/reviews/:review_id/helpful', (req, res) => {
 
 app.put('/reviews/:review_id/report', (req, res) => {
   console.log('someone is connecting to PUT reported for review', req.params.review_id);
-  console.log(req.params);
   db.updateReported(req.params.review_id, (err, result) => {
     if (err) {
       console.error(err);
@@ -143,6 +137,9 @@ app.post('/reviews', (req, res) => {
     params.nextReview_id = lastReview[0].review_id + 1;
     //get characteristicsAndValues entry for product_id and names
     db.findCharacteristics(params.product_id, (err, items) => {
+      if (err) {
+        //error case of find
+      }
       //check that number of chars is same on both
       //if not exit, error out
       if (items.length !== Object.keys(params.characteristics).length) {
@@ -163,8 +160,6 @@ app.post('/reviews', (req, res) => {
           }
         }
       }
-      //items are ready!!!!!!!!!!
-      console.log(items)
       db.addCharacteristics(items, (err2, results) => {
         if (err) {
           console.error(err2);
@@ -177,7 +172,6 @@ app.post('/reviews', (req, res) => {
             } else {
               //review added
               console.log('in success route for add reviews')
-              console.log(result);
               res.status(201).send(result);
             }
           });

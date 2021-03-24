@@ -13,6 +13,7 @@ db.collection.renameCollection('newCollectionName')
 db.collection.insert({'object and its details'})
 //remove a document from the collection - via query
 db.collection.remove({'field': 'value'})
+
 //rename all of the field names in a collection
 db.reviews.updateMany( {}, { $rename: { 'id': 'review_id' } })
 //set up a pipeline for an aggregate call

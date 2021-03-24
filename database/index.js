@@ -1,31 +1,31 @@
-const mongoose = require("mongoose");
-mongoose.connect("mongodb://localhost/Reviews");
+const mongoose = require('mongoose');
+mongoose.connect('mongodb://localhost/Reviews');
 
 const db = mongoose.connection;
-db.on("error", console.error.bind(console, "connection error:"));
-db.once("open", () => {
-  console.log("connected to db");
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', () => {
+  console.log('connected to db');
 });
 
 const reviewSchema = mongoose.Schema({
-  review_id: Number,
-  product_id: Number,
-  rating: Number,
+  review_id: { type: Number, required: true },
+  product_id: { type: Number, required: true },
+  rating: { type: Number, required: true },
   date: Date,
   summary: String,
-  body: String,
+  body: { type: String, required: true },
   reported: Boolean,
-  recommend: Boolean,
-  reviewer_name: String,
-  reviewer_email: String,
+  recommend: { type: Boolean, required: true },
+  reviewer_name: { type: String, required: true },
+  reviewer_email: { type: String, required: true },
   response: String,
   helpfulness: Number,
   photos: [{ url: String }],
 });
 
 const characteristicSchema = mongoose.Schema({
-  id: Number,
-  product_id: Number,
+  id: { type: Number, required: true },
+  product_id: { type: Number, required: true },
   name: String,
   values: [{
     id: Number,
