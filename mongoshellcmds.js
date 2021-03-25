@@ -57,3 +57,15 @@ Pipeline plan for characteristics
     { $out : "characteristicsAndValues2" }
   ]
   db.characteristics.aggregate(pipeline, { allowDiskUse: true })
+
+
+  //attempting to set up for remote mongodump
+  mongodump --ssl \
+    --host="ec2-18-188-55-139.us-east-2.compute.amazonaws.com:27017" \
+    --collection=reviewsAndPhotos \
+    --db=Reviews \
+    --out=sample-output-file \
+    --numParallelCollections 4  \
+    --username=johnetch \
+    --password=iatemuch \
+    --sslCAFile mongoshellcmds.js
